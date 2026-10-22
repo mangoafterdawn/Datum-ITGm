@@ -150,7 +150,7 @@ function Copy-Directory {
 
 # Prompt for theme path
 Write-Host ""
-$rawPath = Read-Host 'Enter the theme path (e.g. C:\Games\itgmania\Themes\ZMod)'
+$rawPath = Read-Host 'Enter the theme path (e.g. C:\Games\ITGmania\Themes\ZMod)'
 if ([string]::IsNullOrWhiteSpace($rawPath)) { Fail 1 '[Err1] No path provided.' }
 $FILE_PATH = $rawPath.Trim().Trim('"', "'")
 

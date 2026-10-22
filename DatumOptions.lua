@@ -12,7 +12,7 @@ local DatumOptions = {}
 DatumOptions.DATUM_MODEL_ENABLED = true -- (DEFAULT: true)
 
 -- the opacity of the datum model, in percent (0-100).
-DatumOptions.DATUM_OPACITY = 80 -- (DEFAULT: 80)
+DatumOptions.DATUM_OPACITY = 85 -- (DEFAULT: 85)
 
 -- if true, the central model will have a hue shifted version of the current selected
 -- Simply Love color in its gradient. otherwise, it will just be a single color.
@@ -45,15 +45,15 @@ DatumOptions.GAY_MODE_ENABLED = false -- (DEFAULT: false)
 DatumOptions.GAY_MODE_SPEED = 40 -- (DEFAULT: 40)
 
 -- if true, automatically have GAY_MODE_ENABLED during June for Pride Month.
-DatumOptions.AUTO_PRIDE_ENABLED = false -- (DEFAULT: true)
+DatumOptions.AUTO_PRIDE_ENABLED = true -- (DEFAULT: true)
 
 
 -- ///////////////////////////////
 --         OTHER OPTIONS
 -- ///////////////////////////////
 
--- if true, enables the update function that controls the movement 
--- of most background objects. otherwise, most objects will not move.
+-- if true, enables the update function that controls the motion of many objects.
+-- otherwise, uses only stepmania tweens where implemented.
 DatumOptions.UPDATE_LOOP_ENABLED = true -- (DEFAULT: true)
 
     -- ///////////////////////////////
@@ -62,21 +62,21 @@ DatumOptions.UPDATE_LOOP_ENABLED = true -- (DEFAULT: true)
     -- these options necessarily require UPDATE_LOOP_ENABLED, as screen transitions use
     -- the update loop to function.
 
-    -- if true short screen transitions will play between some screens.
+    -- if true, short screen transitions will play between some screens.
     DatumOptions.DO_SCREEN_TRANSITIONS = true -- (DEFAULT: true)
 
-    -- if true, a short black bar transition will play between some screens.
-    -- otherwise, only transition animations using already existing elements will play.
-    DatumOptions.ENABLE_BAR_TRANSITION = true -- (DEFAULT: true)
+        -- if true, a short black bar transition will play between some screens.
+        -- otherwise, only transition animations using already existing elements will play.
+        DatumOptions.ENABLE_BAR_TRANSITION = true -- (DEFAULT: true)
 
-    -- specifies the type of transition to do for the MusicWheel.
-    -- "TextOnly"  -- Only MusicWheel text (song title/subtitle) will transition
-    -- "OpacityOnly"  -- Only MusicWheel opacity will transition
-    -- "Full"  -- Both the opacity and text of the MusicWheel will transition
-    -- "SimplyLove"  -- Only the default SimplyLove screen transition will play.
-    DatumOptions.MUSICWHEEL_TRANSITION = "Full" -- (DEFAULT: "Full")
+        -- specifies the type of transition to do for the MusicWheel.
+        -- "TextOnly"  -- Only MusicWheel text (song title/subtitle) will transition
+        -- "OpacityOnly"  -- Only MusicWheel opacity will transition
+        -- "Full"  -- Both the opacity and text of the MusicWheel will transition
+        -- "SimplyLove"  -- Only the default SimplyLove screen transition will play.
+        DatumOptions.MUSICWHEEL_TRANSITION = "Full" -- (DEFAULT: "Full")
 
-    -- (Debug! Probably Don't Change This!)
+    -- (Debug! Don't change this!)
     DatumOptions.TRANSITION_SPEED = 1.0 -- (DEFAULT: true)
 
 return DatumOptions

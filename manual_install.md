@@ -1,7 +1,7 @@
 BEFORE INSTALLING:
 Ensure the theme you are installing the visual style into is a Simply Love based theme.
 This visual style works best and has been tested with Simply Love ZMod the most.
-If there are any bugs, please send them to @mangoafterdawn (Discord) or submit them as an issue to the [GitHub](https://github.com/mangoafterdawn/Datum-ITGm)
+If there are any bugs, please submit them as an issue to the [GitHub](https://github.com/mangoafterdawn/Datum-ITGm)
 
 1. Copy the entire `Datum` folder at `./BGAnimations/_shared background/Datum` into `[Theme]/BGAnimations/_shared_background/`
 
