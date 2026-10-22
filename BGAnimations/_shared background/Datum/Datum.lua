@@ -71,7 +71,7 @@ local DatumOptions, _ = dofile(path)
 if not DatumOptions then
 	DatumOptions = {}
 	DatumOptions.DATUM_MODEL_ENABLED = true
-	DatumOptions.DATUM_OPACITY = 80
+	DatumOptions.DATUM_OPACITY = 85
 	DatumOptions.DATUM_HUE_SHIFT_ENABLED = true
 	DatumOptions.DATUM_HUE_SHIFT_AMOUNT = 32
 	DatumOptions.SINE_ENABLED = true
@@ -102,7 +102,7 @@ local function refreshBaseColor()
 end
 
 -- Actor references, populated in InitCommand via cacheActorRefs()
-local model, ring, mask, coverQuad
+local model, ring , coverQuad
 local transTop, transBottom
 -- sPolygon actors
 local sines = {}
@@ -159,7 +159,6 @@ local function cacheActorRefs(self)
     local c = self:GetChildren()
     model       = c["datumModel"]
     ring        = c["datumRing"]
-    mask        = c["datumMask"]
     coverQuad   = c["coverQuad"]
     transTop    = c["transitionQuadTop"]
     transBottom = c["transitionQuadBottom"]
@@ -251,27 +250,27 @@ local function updater(self, delta)
     e2 = addEase[2].v
 
     if screen == "ScreenSelectMusic" then
-        model:rotationx(math.sin(time * 2 / -29) * 3)
-        model:rotationy(math.sin(time * 2 /  23) * 5)
-        model:rotationz(math.sin(time * 2 /  31) * 3)
-        ring:rotationx(-60 + math.sin(time * 1 / -29) * 2)
-        ring:rotationy(-30 + math.cos(time * 1 / -31) * 2)
+        model:rotationx(math.sin(knownScreenUptime * 2 / -29) * 3)
+        model:rotationy(math.sin(knownScreenUptime * 2 /  23) * 5)
+        model:rotationz(math.sin(knownScreenUptime * 2 /  31) * 3)
+        ring:rotationx(-60 + math.sin(knownScreenUptime * 1 / -29) * 2)
+        ring:rotationy(-30 + math.cos(knownScreenUptime * 1 / -31) * 2)
 
     elseif screen == "ScreenPlayerOptions" then
-        model:rotationx(math.sin(time * 2 / -29) * 3)
-        model:rotationy(math.sin(time * 2 /  23) * 5)
-        model:rotationz(math.sin(time * 2 /  31) * 3)
-        ring:rotationx(40 + math.sin(time * 1 / -29) * 2)
-        ring:rotationy(-30 + math.cos(time * 1 / -31) * 2)
+        model:rotationx(math.sin(knownScreenUptime * 2 / -29) * 3)
+        model:rotationy(math.sin(knownScreenUptime * 2 /  23) * 5)
+        model:rotationz(math.sin(knownScreenUptime * 2 /  31) * 3)
+        ring:rotationx(40 + math.sin(knownScreenUptime * 1 / -29) * 2)
+        ring:rotationy(-30 + math.cos(knownScreenUptime * 1 / -31) * 2)
 
     else
-        model:rotationx(math.sin(time * 5 / -29) * 5)
-        model:rotationy(math.sin(time * 5 /  23) * 10 + e1 * -30)
-        model:rotationz(math.sin(time * 5 /  31) * 2)
+        model:rotationx(math.sin(knownScreenUptime * 5 / -29) * 5)
+        model:rotationy(math.sin(knownScreenUptime * 5 /  23) * 10 + e1 * -30)
+        model:rotationz(math.sin(knownScreenUptime * 5 /  31) * 2)
         model:y(SCREEN_CENTER_Y - 30 + e2 * 30)
 
-        ring:rotationx(-70 + math.sin(time * 1 / -29) * 2 + e2 * 10)
-        ring:rotationy( 40 + math.cos(time * 1 / -31) * 2)
+        ring:rotationx(-70 + math.sin(knownScreenUptime * 1 / -29) * 2 + e2 * 10)
+        ring:rotationy( 40 + math.cos(knownScreenUptime * 1 / -31) * 2)
     end
 
     -- hue cycling
@@ -285,20 +284,20 @@ local function updater(self, delta)
         local c = HSVToColor(tmpHSV)
 
         if DatumOptions.DATUM_HUE_SHIFT_ENABLED then
-            mask:diffuse(c)
+            model:diffuse(c)
             tmpHSV.Hue = (h - DatumOptions.DATUM_HUE_SHIFT_AMOUNT) % 360
-            mask:diffusetopedge(HSVToColor(tmpHSV))
+            model:diffusetopedge(HSVToColor(tmpHSV))
         else
-            mask:diffuse(c)
-            mask:diffusetopedge(c)
+            model:diffuse(c)
+            model:diffusetopedge(c)
         end
     end
 
-    model:diffusealpha(0.7)
-    mask:diffusealpha(DatumOptions.DATUM_OPACITY / 100 + e1 * -3.8)
+    --model:diffusealpha(0.7)
+    model:diffusealpha(DatumOptions.DATUM_OPACITY / 100 + e1 * -3.8)
 
     if screen == "ScreenPlayerOptions" or isOpaque then
-        mask:diffusealpha(1)
+        model:diffusealpha(1)
     end
 
     -- sine polygons
@@ -339,7 +338,7 @@ local function updater(self, delta)
         transBottom:playcommand("Init")
     end
 
-    -- ---- per-screen model/mask transition tweens ----
+    -- ---- per-screen model transition tweens ----
     if knownScreenUptime < transitionTime then
         local te = transitionEase
         local te2 = te * te
@@ -354,19 +353,18 @@ local function updater(self, delta)
                 :diffusebottomedge(coverDiffuseBottom / 255, coverDiffuseBottom / 255, coverDiffuseBottom / 255, 1)
                 :diffusealpha(0.7 + te * 0.2)
 
-            mask:diffusealpha(1 + te2)
+            model:diffusealpha(1 + te2)
 
         elseif screen == "ScreenEvaluationStage" or screen == "ScreenEvaluationCourse" then
             model:y(SCREEN_CENTER_Y - 30 + te * 25)
 
         elseif screen == "ScreenPlayerOptions" then
             model:x(SCREEN_CENTER_X + 250 + te * -20)
-            mask:diffuse(75 / 255, 75 / 255, 75 / 255, 1)
-            mask:diffusealpha(1 - te2)
+            model:diffuse(75 / 255, 75 / 255, 75 / 255, 1 - te2)
 
         else
             model:y(SCREEN_CENTER_Y - 30 + e2 * 30 + te * 25)
-            mask:diffusealpha(DatumOptions.DATUM_OPACITY / 100 - te2 + e1 * -3.8)
+            model:diffusealpha(DatumOptions.DATUM_OPACITY / 100 - te2 + e1 * -3.8)
         end
 
         if time > 12 then
@@ -608,13 +606,15 @@ if DatumOptions.SINE_ENABLED == true then
 		t[#t+1] = Def.ActorFrame {
 			Name = "sPolygonFrame"..s,
 			OnCommand=function(self)
-				if GetCurrentScreen(true) == "ScreenSelectMusic" then
+				self:linear(-1)
+				local curScreen=GetCurrentScreen(true)
+				if curScreen == "ScreenSelectMusic" then
 					self
 					:rotationz(4)
 					:rotationx(-10)
 					:x(SCREEN_CENTER_X - 200)
 					:y(SCREEN_CENTER_Y)
-				elseif GetCurrentScreen(true) == "ScreenPlayerOptions" then
+				elseif curScreen == "ScreenPlayerOptions" then
 					self
 					:rotationz(-30)
 					:rotationx(-20)
@@ -627,16 +627,23 @@ if DatumOptions.SINE_ENABLED == true then
 					:x(SCREEN_CENTER_X)
 					:y(SCREEN_CENTER_Y)
 				end
+				if not DatumOptions.UPDATE_LOOP_ENABLED then
+					self
+					:rotationy(-20)
+					:bezier(1,{0,1.0,1.0,1.0})
+					:rotationy(0)
+				end
 			end,
 			Def.ActorMultiVertex {
 				Name="sPolygon",
 				OnCommand=function(self)
+					local curScreen=GetCurrentScreen(true)
 					local numVert = 80
 					local lenMult = 25
 					local radius = 80 + s*20-- sine twist radius, vary by s
 					-- offset in radius to give the quadstrip some width
 					local lineWidth
-					if GetCurrentScreen(true) == "ScreenSelectMusic" or GetCurrentScreen(true) == "ScreenPlayerOptions" then
+					if curScreen == "ScreenSelectMusic" or curScreen == "ScreenPlayerOptions" then
 						lineWidth = DatumOptions.SINE_WIDTH * 4.25
 					else
 						lineWidth = DatumOptions.SINE_WIDTH
@@ -656,6 +663,14 @@ if DatumOptions.SINE_ENABLED == true then
 								math.cos(i/(7 + s*5) + s*30)*(radius+lineWidth*isOdd)
 							},{1,1,1,DatumOptions.SINE_OPACITY/100}
 						})
+					end
+
+					if not DatumOptions.UPDATE_LOOP_ENABLED then
+						self
+						:spin()
+						:effectmagnitude(0, 10, 0)
+						:effectoffset(s*400)
+						--:bezier(4,{0,1.0,1.0,1.0})
 					end
 				end
 			}
@@ -811,45 +826,47 @@ if DatumOptions.DO_SCREEN_TRANSITIONS then
 	}
 end
 
---pack.dat logo modelled and masked onto a gradient
-t[#t+1] = Def.Model {
+t[#t+1] = Def.Sprite {
 	Name="datumModel",
-	Meshes="./datum.txt",
-	Materials="./datum.txt",
-	Bones="./datum.txt",
+	Texture = "./datum.png",
 	InitCommand=function(self)
 		self:finishtweening()
+
 		self
-		:SetTextureFiltering(true)
 		:diffusealpha(0)
-		:cullmode('none')
-		:skewy(-0.39)
-		:clearzbuffer(true)
-		:zwrite(true)
-		:blend('BlendMode_NoEffect')
+		:skewy(-0.05)
 	end,
 	OnCommand=function(self)
-		self:finishtweening()
-		self:diffusealpha(0.7)
 		self
-		:zoomx(2.7):zoomy(3.125):zoomz(2.5)
+		:linear(0)
+		:diffuse(GetHexColor(SL.Global.ActiveColorIndex, true))
+		:diffusetopedge(shiftActiveColorHue())
+		:diffusealpha(DatumOptions.DATUM_OPACITY/100)
+		:zoomto(300,280)
+		--:zoomx(2.7):zoomy(3.125):zoomz(2.5)
 		:xy(SCREEN_CENTER_X, SCREEN_CENTER_Y)
 		if not DatumOptions.UPDATE_LOOP_ENABLED then
-			self:decelerate(1.5)
-			self:diffusealpha(0.7)
+			self
+			:bezier(1,{0,1.0,1.0,1.0})
+			:diffusealpha(DatumOptions.DATUM_OPACITY/100)
+			if DatumOptions.GAY_MODE_ENABLED then
+				self
+				:rainbow()
+				:effectperiod(360/DatumOptions.GAY_MODE_SPEED)
+			end
 		end
 	end,
 	ScreenChangedMessageCommand=function(self)
 		local name = GetCurrentScreen(true)
 		if name == "ScreenSelectMusic" then
 			self:finishtweening()
-			self:zoomx(6.75):zoomy(7.8125):zoomz(6.25)
+			self:zoomto(750,700)
 			self:x(SCREEN_CENTER_X + 200):y(SCREEN_CENTER_Y - 30)
 			if not DatumOptions.UPDATE_LOOP_ENABLED then
 				self
 				:x(SCREEN_CENTER_X + 210)
 				:y(SCREEN_CENTER_Y - 30)
-				self:decelerate(1.5)
+				self:bezier(1.5,{0,1.0,1.0,1.0})
 				:x(SCREEN_CENTER_X + 200)
 				:y(SCREEN_CENTER_Y - 30)
 			else
@@ -858,15 +875,17 @@ t[#t+1] = Def.Model {
 				:y(SCREEN_CENTER_Y - 30)
 			end
 		elseif name == "ScreenPlayerOptions" then
-			local mult = 0.9
-			self:finishtweening()
-			self:zoomx(6.75*mult):zoomy(7.8125*mult):zoomz(6.25*mult)
-			self:x(SCREEN_CENTER_X + 300):y(SCREEN_CENTER_Y - 30)
+			self
+			:finishtweening()
+			:zoomto(675,630)
+			:x(SCREEN_CENTER_X + 300)
+			:y(SCREEN_CENTER_Y - 30)
+			:diffuse(75 / 255, 75 / 255, 75 / 255, 1)
 			if not DatumOptions.UPDATE_LOOP_ENABLED then
 				self
 				:x(SCREEN_CENTER_X + 310)
 				:y(SCREEN_CENTER_Y - 30)
-				self:decelerate(1.5)
+				self:bezier(1.5,{0,1.0,1.0,1.0})
 				:x(SCREEN_CENTER_X + 300)
 				:y(SCREEN_CENTER_Y - 30)
 			else
@@ -874,52 +893,32 @@ t[#t+1] = Def.Model {
 				:x(SCREEN_CENTER_X + 300)
 				:y(SCREEN_CENTER_Y - 30)
 			end
-		end
-	end,
-}
-t[#t+1] = Def.Sprite {
-	Name = "datumMask",
-	Texture = "./white_tex.png",
-	InitCommand=function(self)
-		self:diffusealpha(0)
-	end,
-	OnCommand=function(self)
-		self
-		:visible(DatumOptions.DATUM_MODEL_ENABLED)
-		:zoomto(SCREEN_WIDTH,SCREEN_HEIGHT):xy(SCREEN_CENTER_X, SCREEN_CENTER_Y)
-		:diffuse(GetHexColor(SL.Global.ActiveColorIndex, true))
-		:diffusealpha(DatumOptions.DATUM_OPACITY/100)
-		if DatumOptions.DATUM_HUE_SHIFT_ENABLED then
-			self:diffusetopedge(shiftActiveColorHue())
-		else
-			self:decelerate(1.5)
-			self:diffusetopedge(GetHexColor(SL.Global.ActiveColorIndex, true))
-		end
-		self
-		:finishtweening()
-		:ztest(true)
-		:ztestmode('ZTestMode_WriteOnFail')
-	end,
-	ColorSelectedMessageCommand=function(self)
-		refreshBaseColor()
-		local hex = GetHexColor(SL.Global.ActiveColorIndex, true)
-		self:linear(0.1):diffuse(hex)
-	
-		if DatumOptions.DATUM_HUE_SHIFT_ENABLED then
-			self:diffusetopedge(shiftActiveColorHue())
-		else
-			self:diffusetopedge(hex)
-		end
-		self:diffusealpha(DatumOptions.DATUM_OPACITY / 100)
-	end,
-	ScreenChangedMessageCommand=function(self)
-		-- change size and position for a cleaner look
-		if not DatumOptions.UPDATE_LOOP_ENABLED then
-			if GetCurrentScreen(true) == "ScreenPlayerOptions" then
-				self:diffuse(75/255, 75/255, 75/255, 1)
+		elseif name == "ScreenTitleMenu" then
+			if not DatumOptions.UPDATE_LOOP_ENABLED then
+				self
+				:finishtweening()
+				:zoomto(300,280)
+				:diffusealpha(0)
+				:y(SCREEN_CENTER_Y + 10)
+				self:bezier(1,{0,1.0,1.0,1.0})
+				:diffusealpha(DatumOptions.DATUM_OPACITY/100)
+				:x(SCREEN_CENTER_X)
+				:y(SCREEN_CENTER_Y)
 			end
 		end
-	end
+	end,
+	ColorSelectedMessageCommand=function(self)
+		if DatumOptions.DATUM_HUE_SHIFT_ENABLED then
+			self:linear(0.1)
+			self:diffuse(GetHexColor(SL.Global.ActiveColorIndex, true))
+			self:diffusetopedge(shiftActiveColorHue())
+		else
+			self:linear(0.1)
+			self:diffuse(GetHexColor(SL.Global.ActiveColorIndex, true))
+			self:diffusetopedge(GetHexColor(SL.Global.ActiveColorIndex, true))
+		end
+		self:diffusealpha(DatumOptions.DATUM_OPACITY/100)
+	end,
 }
 
 -- cover for when we need a little bit more clarity
@@ -1114,7 +1113,7 @@ t[#t+1] = Def.Actor {
 
 			if DatumOptions.DO_SCREEN_TRANSITIONS then
 				-- hides the white transition quad in ScreenSelectMusic so we can use our own
-				local sharedBG = tActors["datumMask"]:GetParent():GetParent():GetParent()
+				local sharedBG = tActors["datumModel"]:GetParent():GetParent():GetParent()
 				if GetCurrentScreen(true) == "ScreenSelectMusic" or GetCurrentScreen(true) == "ScreenSelectCourse" then
 					if sharedBG:GetChild("") then
 						sharedBG:GetChild("")[3]:visible(0)
