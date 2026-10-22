@@ -79,7 +79,7 @@ if not DatumOptions then
 	DatumOptions.SINE_OPACITY = 100
 	DatumOptions.GAY_MODE_ENABLED = false
 	DatumOptions.GAY_MODE_SPEED = 40
-	DatumOptions.AUTO_PRIDE_ENABLED = false
+	DatumOptions.AUTO_PRIDE_ENABLED = true
 	DatumOptions.UPDATE_LOOP_ENABLED = true
     DatumOptions.DO_SCREEN_TRANSITIONS = true
     DatumOptions.ENABLE_BAR_TRANSITION = true

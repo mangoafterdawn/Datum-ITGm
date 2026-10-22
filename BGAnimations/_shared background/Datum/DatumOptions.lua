@@ -12,7 +12,7 @@ local DatumOptions = {}
 DatumOptions.DATUM_MODEL_ENABLED = true -- (DEFAULT: true)
 
 -- the opacity of the datum model, in percent (0-100).
-DatumOptions.DATUM_OPACITY = 85 -- (DEFAULT: 90)
+DatumOptions.DATUM_OPACITY = 85 -- (DEFAULT: 85)
 
 -- if true, the central model will have a hue shifted version of the current selected
 -- Simply Love color in its gradient. otherwise, it will just be a single color.
@@ -45,7 +45,7 @@ DatumOptions.GAY_MODE_ENABLED = false -- (DEFAULT: false)
 DatumOptions.GAY_MODE_SPEED = 40 -- (DEFAULT: 40)
 
 -- if true, automatically have GAY_MODE_ENABLED during June for Pride Month.
-DatumOptions.AUTO_PRIDE_ENABLED = false -- (DEFAULT: true)
+DatumOptions.AUTO_PRIDE_ENABLED = true -- (DEFAULT: true)
 
 
 -- ///////////////////////////////
@@ -54,7 +54,7 @@ DatumOptions.AUTO_PRIDE_ENABLED = false -- (DEFAULT: true)
 
 -- if true, enables the update function that controls the motion of many objects.
 -- otherwise, uses only stepmania tweens where implemented.
-DatumOptions.UPDATE_LOOP_ENABLED = false -- (DEFAULT: true)
+DatumOptions.UPDATE_LOOP_ENABLED = true -- (DEFAULT: true)
 
     -- ///////////////////////////////
     --       TRANSITION OPTIONS
