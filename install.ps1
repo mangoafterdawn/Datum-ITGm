@@ -23,23 +23,20 @@ function Backup-File {
 
     if ($script:BackedUp.Contains($Path)) { return }
 
-    $relative = $Path
-    if ($relative.StartsWith($PWD.Path)) {
-        $relative = $relative.Substring($PWD.Path.Length).TrimStart('\', '/')
-    }
-    $dest = Join-Path (Join-Path $PWD '.backup') $relative
+	$filename = Split-Path -Leaf $Path
+    $dest = Join-Path (Join-Path $PWD '.backup') $filename
 
-    $destDir = Split-Path -Parent $dest
-    if (-not (Test-Path -LiteralPath $destDir)) {
-        New-Item -ItemType Directory -Path $destDir -Force | Out-Null
-    }
+   $backupRoot = Join-Path $PWD '.backup'
+   if (-not (Test-Path -LiteralPath $backupRoot)) {
+	   New-Item -ItemType Directory -Path $backupRoot -Force | Out-Null
+   }
     Copy-Item -LiteralPath $Path -Destination $dest -Force
     [void]$script:BackedUp.Add($Path)
 }
 
 function Read-YesNo {
     param(
-        [Parameter(Mandatory)][string]$Prompt,
+        [Parameter(Mandatory)][AllowEmptyString()][string]$Prompt,
         [bool]$Default = $true
     )
     $suffix = if ($Default) { '[Y/n]' } else { '[y/N]' }
@@ -265,7 +262,10 @@ if (Test-Path -LiteralPath $SCRIPTS -PathType Container) {
         # Already installed
     } elseif ($tpContent -match 'local visualStyleValues') {
         Backup-File -Path $themeprefs
-        Append-LineAfter -Path $themeprefs -Regex 'local visualStyleValues[ \t]*=[ \t]*\{' -Line 'visualStyleChoices[#visualStyleChoices+1]="💾"; visualStyleValues[#visualStyleValues+1]="Datum"'
+	# Floppy Disk Emoji
+	$emoji = [System.char]::ConvertFromUtf32(0x1F4BE)
+	$insertLine = 'visualStyleChoices`[#visualStyleChoices`]="' + $emoji + '"; visualStyleValues`[#visualStyleValues+1`]="Datum"'
+        Append-LineAfter -Path $themeprefs -Regex 'local visualStyleValues[ \t]*=[ \t]*\{' -Line $insertLine
     } else {
         Fail 3 "[Err3] Failed to match line in: $themeprefs"
     }
@@ -283,7 +283,7 @@ if (Test-Path -LiteralPath $SOUNDS -PathType Container) {
         # Already installed
     } elseif ($mmContent -match 'local songs') {
         Backup-File -Path $menuMusicLua
-        Append-LineAfter -Path $menuMusicLua -Regex '\}' -Line 'songs["Datum"]="everglow"'
+        Append-LineAfter -Path $menuMusicLua -Regex '\}' -Line 'songs`["Datum"`]="everglow"'
     } else {
         Fail 3 "[Err3] Failed to match line in: $menuMusicLua"
     }
