@@ -44,23 +44,23 @@ If there are any bugs, please submit them as an issue to the [GitHub](https://gi
 	visualStyleChoices[#visualStyleChoices+1]="💾"; visualStyleValues[#visualStyleValues+1]="Datum"
 	```
 
-6. [Optional] Within `[Theme]/Sounds/_common menu music/default.lua`, add the following code below the `songs` table:
+6. **[Optional]** Within `[Theme]/Sounds/_common menu music/default.lua`, add the following code below the `songs` table:
 	```lua
 	songs["Datum"]="everglow"
 	```
    - Then, copy `everglow (loop).ogg` to `[Theme]/Sounds/_common menu music/`
 
-7. [Optional] Within `[Theme]/Sounds/ScreenGameOver music.lua`, add the following conditional below line 7:
+7. **[Optional]** Within `[Theme]/Sounds/ScreenGameOver music.lua`, add the following conditional below line 7:
 	```lua
 	elseif style == "Datum" then audio_file = "todolist.ogg"
 	```
 	- Then, copy `todolist.ogg` to `[Theme]/Sounds/`
 
-8. [Optional] [ZMod Only] Copy `Evaluation Fail` and `Evaluation Pass` into `[Theme]/Sounds/`
+8. **[Optional]** [ZMod Only] Copy `Evaluation Fail` and `Evaluation Pass` into `[Theme]/Sounds/`
 
-9. [Optional] Within `[Theme]/Graphics/ScreenTitleMenu scroll.lua`, replace `PLAYER_2` with `PLAYER_1` on line 29:
+9. **[Optional]** Within `[Theme]/Graphics/ScreenTitleMenu scroll.lua`, replace `PLAYER_2` with `PLAYER_1` on line 29:
 	```lua
 	local textColor = PlayerColor(PLAYER_1)
 	```
 
-10. [Optional] Select all files within `Sounds/_overwrites` and copy them into `[Theme]/Sounds/`
+10. **[Optional]** Select all files within `Sounds/_overwrites` and copy them into `[Theme]/Sounds/`
