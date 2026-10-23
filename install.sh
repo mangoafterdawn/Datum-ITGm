@@ -89,7 +89,7 @@ if [[ -d "$SHARED_BG" ]]; then
     elif grep -qF "self:visible(not ThemePrefs" "$SHARED_BG/Normal.lua"; then
         # Edit the lines to allow the visual style to be visible.
         backup_file "$SHARED_BG/Normal.lua"
-        sed -i -E 's/(self:visible\(.*)(\))/\1 and style ~= "Datum"\2/' "$SHARED_BG/Normal.lua"
+        sed -i -E 's/(self:visible\(not ThemePrefs\.Get\("RainbowMode"\)[^)]*)(\))/\1 and style ~= "Datum"\2/' "$SHARED_BG/Normal.lua"
         sed -i -E '/ThemePrefs\.Get\("RainbowMode"\)/s/[[:space:]]*then/ or style == "Datum" then/' "$SHARED_BG/Normal.lua"
     else
         echo "[Err3] Failed to match line in: $SHARED_BG/Normal.lua" >&2
