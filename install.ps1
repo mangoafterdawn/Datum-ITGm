@@ -120,9 +120,13 @@ function Append-LineAfter {
         [Parameter(Mandatory)][string]$Regex,
         [Parameter(Mandatory)][string]$Line
     )
-    $lines = Get-Content -LiteralPath $Path
+    
+    $content = [System.IO.File]::ReadAllText($Path, [System.Text.Encoding]::UTF8)
+    
+    $lines = $content -split "\r?\n"
     $out = New-Object System.Collections.Generic.List[string]
     $matched = $false
+    
     foreach ($l in $lines) {
         $out.Add($l)
         if (-not $matched -and $l -match $Regex) {
@@ -130,8 +134,11 @@ function Append-LineAfter {
             $matched = $true
         }
     }
+    
     if (-not $matched) { Fail 3 "[Err3] Failed to match line in: $Path" }
-    Write-FileNoBom -Path $Path -Content ($out -join "`r`n")
+    
+    $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+    [System.IO.File]::WriteAllText($Path, ($out -join "`r`n"), $utf8NoBom)
 }
 
 function Copy-Directory {
@@ -224,8 +231,8 @@ if (Test-Path -LiteralPath $SHARED_BG -PathType Container) {
         # Already installed
     } elseif ($normalContent -match 'self:visible\(not ThemePrefs') {
         Backup-File -Path $normalLua
-        Regex-Replace-InFile -Path $normalLua -Pattern '(self:visible\(.*)(\))' -Replacement '$1 and style ~= "Datum"$2'
-        Regex-Replace-OnMatchingLines -Path $normalLua -LineFilter 'ThemePrefs\.Get\("RainbowMode"\)' -Pattern '[ \t]*then' -Replacement ' or style == "Datum" then'
+        Regex-Replace-InFile -Path $normalLua -Pattern '(self:visible\(not ThemePrefs\.Get\("RainbowMode"\)[^\)]*)(\))' -Replacement '$1 and style ~= "Datum"$2'
+		Regex-Replace-OnMatchingLines -Path $normalLua -LineFilter 'ThemePrefs\.Get\("RainbowMode"\)' -Pattern '[ \t]*then' -Replacement ' or style == "Datum" then'
     } else {
         Fail 3 "[Err3] Failed to match line in: $normalLua"
     }
@@ -262,10 +269,10 @@ if (Test-Path -LiteralPath $SCRIPTS -PathType Container) {
         # Already installed
     } elseif ($tpContent -match 'local visualStyleValues') {
         Backup-File -Path $themeprefs
-	# Floppy Disk Emoji
-	$emoji = [System.char]::ConvertFromUtf32(0x1F4BE)
-	$insertLine = 'visualStyleChoices`[#visualStyleChoices`]="' + $emoji + '"; visualStyleValues`[#visualStyleValues+1`]="Datum"'
-        Append-LineAfter -Path $themeprefs -Regex 'local visualStyleValues[ \t]*=[ \t]*\{' -Line $insertLine
+	$insertLine = 'visualStyleChoices[#visualStyleChoices+1]="EMOJI_HERE"; visualStyleValues[#visualStyleValues+1]="Datum"'
+        $emoji = [char]::ConvertFromUtf32(0x1F4BE)
+		$insertLine = $insertLine -replace 'EMOJI_HERE', $emoji
+		Append-LineAfter -Path $themeprefs -Regex 'local visualStyleValues[ \t]*=[ \t]*\{' -Line $insertLine
     } else {
         Fail 3 "[Err3] Failed to match line in: $themeprefs"
     }
@@ -283,7 +290,7 @@ if (Test-Path -LiteralPath $SOUNDS -PathType Container) {
         # Already installed
     } elseif ($mmContent -match 'local songs') {
         Backup-File -Path $menuMusicLua
-        Append-LineAfter -Path $menuMusicLua -Regex '\}' -Line 'songs`["Datum"`]="everglow"'
+        Append-LineAfter -Path $menuMusicLua -Regex '\}' -Line 'songs["Datum"]="everglow"'
     } else {
         Fail 3 "[Err3] Failed to match line in: $menuMusicLua"
     }
