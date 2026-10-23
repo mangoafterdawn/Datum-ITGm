@@ -1068,18 +1068,35 @@ t[#t+1] = Def.Actor {
 					end
 				end
 			elseif GetCurrentScreen(true) == "ScreenSelectMusic" then
-				local overlay = GetCurrentScreen():GetChild("Overlay")
-				local per_player = overlay:GetChild("PerPlayer")
-				for i = 1,#per_player:GetChild("") do
-					-- FolderStats.lua and DensityGraph.lua both return actorframes without names.
-					-- DensityGraph.lua has a "ChartParser" element, so lets differentiate it that way.
-					if per_player:GetChild("")[i]:GetChild("ChartParser") then
-						per_player:GetChild("")[i]:GetChild(""):diffusealpha(0.5)
-						per_player:GetChild("")[1]:GetChild("ChartParser"):GetChild("PatternInfo"):GetChild(""):diffusealpha(0.5)
+				local screen = GetCurrentScreen()				
+				local overlay = screen and screen:GetChild("Overlay")
+				local per_player = overlay and overlay:GetChild("PerPlayer")
+				
+				if per_player then
+					for i = 1, #per_player:GetChild("") do
+						local statsActor = per_player:GetChild("")[i]
+						
+						if statsActor then
+							-- FolderStats.lua and DensityGraph.lua both return actorframes without names.
+							-- DensityGraph.lua has a "ChartParser" element, so lets differentiate it that way.
+							local chartParser = statsActor:GetChild("ChartParser")
+							
+							if chartParser then
+								statsActor:diffusealpha(0.5)
+								
+								local patternInfo = chartParser:GetChild("PatternInfo")
+								if patternInfo then
+									local patternActor = patternInfo:GetChild("")
+									if patternActor then
+										patternActor:diffusealpha(0.5)
+									end
+								end
+							end
+						end
 					end
 				end
+				--[[
 				do
-					-- remove the white overlay that appears on the screen transition to ScreenSelectMusic
 					local children = overlay:GetChild("")
 					for i = 1,#children do
 						local child = children[i]
@@ -1091,6 +1108,7 @@ t[#t+1] = Def.Actor {
 						end
 					end
 				end
+				--]]
 				--GetCurrentScreen():GetChild("Footer"):diffusealpha(0.5):diffuse(0, 0, 0, 0.5)
 				--GetCurrentScreen():GetChild("Header"):GetChild(""):diffuse(0, 0, 0, 0.5)
 			end
