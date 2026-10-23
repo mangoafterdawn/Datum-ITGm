@@ -8,6 +8,12 @@ local DatumOptions = {}
 --       BACKGROUND OPTIONS
 -- ///////////////////////////////
 
+-- TODO: Light Mode? Would be a lot of work if there's not
+-- a good way to have the whole theme invert the text color.
+-- "Light"
+-- "Dark"
+-- DatumOptions.COLOR_MODE = "Dark"
+
 -- if true, the central model is visible.
 DatumOptions.DATUM_MODEL_ENABLED = true -- (DEFAULT: true)
 

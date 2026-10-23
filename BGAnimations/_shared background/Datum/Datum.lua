@@ -1,3 +1,7 @@
+-- @NAME:Datum Visual Style
+-- @VERSION:1.0.0
+-- @ID:dat.100
+
 -- adapted from Technique.lua
 -- created by mang;
 	-- i am well aware that my coding may not be very optimized. please let me know if you run into any issues

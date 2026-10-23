@@ -1,6 +1,6 @@
 # Datum
 
-Datum is a Visual Style for Simply Love-based themes (Primarily developed on the ZMod fork).
+Datum is a Visual Style for Simply Love-based themes (Primarily developed on the Simply Love ZMod fork).
 
 This style attempts to build off of the futuristic, techy visual style known as "Technique", the default style used in ZMod. It is heavily altered to fit the design language created for the **pack.dat** simfile pack series. It also attempts to use its per-screen layout features to improve the visual clarity of screens.
 
