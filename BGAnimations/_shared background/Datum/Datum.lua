@@ -11,14 +11,6 @@
 	-- be done in a simpler manner (ESPECIALLY in some of the GetChild shenanigans done to recreate Technique,
 	-- that would be wonderful. i just coded this kind of like a NotITG modfile lol
 
-local file = ...
-local anim_data = {
-	color_add = {-0.75,0,0,-0.75,-0.75,-0.75,0,-0.75,0,-0.75},
-	diffusealpha = {0.05,0.2,0.1,0.1,0.1,0.1,0.1,0.05,0.1,0.1},
-	xy = {0,40,80,120,200,280,360,400,480,560},
-	texcoordvelocity = {{0.03,0.01},{0.03,0.02},{0.03,0.01},{0.02,0.02},{0.03,0.03},{0.02,0.02},{0.03,0.01},{-0.03,0.01},{0.05,0.03},{0.03,0.04}}
-}
-
 -- the screens for which a layout has been made. 
 -- if a screen not on this list is pushed to the top, 
 -- we will check for  these "known" screens to act as a failsafe
@@ -535,11 +527,6 @@ local t = Def.ActorFrame {
 		end
 	]]
 }
-
-local function randomXD(t)
-	if t == 0 then return 0.5 else
-	return (math.sin(t * 3229.3) * 43758.5453) % 1 end
-end
 
 -- background
 t[#t+1] = Def.Quad {
