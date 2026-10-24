@@ -83,6 +83,6 @@ DatumOptions.UPDATE_LOOP_ENABLED = true -- (DEFAULT: true)
         DatumOptions.MUSICWHEEL_TRANSITION = "Full" -- (DEFAULT: "Full")
 
     -- (Debug! Don't change this!)
-    DatumOptions.TRANSITION_SPEED = 1.0 -- (DEFAULT: true)
+    DatumOptions.TRANSITION_SPEED = 1.0 -- (DEFAULT: 1.0)
 
 return DatumOptions
