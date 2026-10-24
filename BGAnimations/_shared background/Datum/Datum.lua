@@ -1010,8 +1010,23 @@ t[#t+1] = Def.Actor {
 
 			if GetCurrentScreen(true)=="ScreenTitleMenu" then
 				--remove the SL text logos ass they will be replaced with BG elements.
-				GetCurrentScreen():GetChild("Underlay"):GetChild("SLInfo"):GetChild("")[1]:GetChild("Simply Text"):visible(0)
-				GetCurrentScreen():GetChild("Underlay"):GetChild("SLInfo"):GetChild("")[1]:GetChild(""):visible(0)
+				local underlay = GetCurrentScreen():GetChild("Underlay")
+				if underlay then
+					local SLInfo = underlay:GetChild("SLInfo")
+					if SLInfo then
+						local SLInfoFrame = SLInfo:GetChild("")[1]
+						if SLInfoFrame then
+							local SimplyText = SLInfoFrame:GetChild("Simply Text")
+							local arrowsLogo = SLInfoFrame:GetChild("")
+							if SimplyText then
+								SimplyText:visible(0)
+							end
+							if arrowsLogo then
+								arrowsLogo:visible(0)
+							end
+						end
+					end
+				end
 			elseif GetCurrentScreen(true) == "ScreenEvaluationStage" or GetCurrentScreen(true) == "ScreenEvaluationCourse" then
 				local panes = GetCurrentScreen():GetChild("Overlay"):GetChild("ScreenEval Common"):GetChild("Panes")
 				if panes then
