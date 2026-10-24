@@ -179,14 +179,26 @@ end
 --//////////////////////////////////////////////////
 
 local function shiftActiveColorHue()
-	local currentHSV = ColorToHSV(GetHexColor(SL.Global.ActiveColorIndex, true))
-	local newHSV = {
-		["Hue"] = currentHSV["Hue"] - DatumOptions.DATUM_HUE_SHIFT_AMOUNT,
-		["Sat"] = 1.0,
-		["Value"] = currentHSV["Value"],
-		["Alpha"] = currentHSV["Alpha"],
-	}
-	return HSVToColor(newHSV)
+	-- "Hue", "Sat", "Value", "Alpha"
+	return HSVToColor({
+		Hue = (baseHSV.Hue - DatumOptions.DATUM_HUE_SHIFT_AMOUNT) % 360,
+		Sat = 1.0,
+		Value = baseHSV.Value,
+		Alpha = baseHSV.Alpha
+	})
+end
+
+function clamp(val, lower, upper)
+    return math.max(lower, math.min(upper, val))
+end
+local function customActiveColorShift(h,s,v,a)
+	local hsv = {
+        Hue = (baseHSV.Hue + h) % 360,
+        Sat = clamp(baseHSV.Sat + s, 0, 1),
+        Value = clamp(baseHSV.Value + v, 0, 1),
+        Alpha = clamp(baseHSV.Alpha + a, 0, 1)
+    }
+	return HSVToColor(hsv)
 end
 
 local doGayMode
@@ -258,20 +270,20 @@ local function updater(self, delta)
         model:rotationy(math.sin(knownScreenUptime * 2 /  23) * 5)
         model:rotationz(math.sin(knownScreenUptime * 2 /  31) * 3)
         ring:rotationx(-60 + math.sin(knownScreenUptime * 1 / -29) * 2)
-        ring:rotationy(-30 + math.cos(knownScreenUptime * 1 / -31) * 2)
+        ring:rotationy(math.cos(knownScreenUptime * 1 / -31) * 2)
 
     elseif screen == "ScreenPlayerOptions" then
         model:rotationx(math.sin(knownScreenUptime * 2 / -29) * 3)
         model:rotationy(math.sin(knownScreenUptime * 2 /  23) * 5)
         model:rotationz(math.sin(knownScreenUptime * 2 /  31) * 3)
         ring:rotationx(40 + math.sin(knownScreenUptime * 1 / -29) * 2)
-        ring:rotationy(-30 + math.cos(knownScreenUptime * 1 / -31) * 2)
+        ring:rotationy(math.cos(knownScreenUptime * 1 / -31) * 2)
 
     else
         model:rotationx(math.sin(knownScreenUptime * 5 / -29) * 5)
         model:rotationy(math.sin(knownScreenUptime * 5 /  23) * 10 + e1 * -30)
         model:rotationz(math.sin(knownScreenUptime * 5 /  31) * 2)
-        model:y(SCREEN_CENTER_Y - 30 + e2 * 30)
+        model:y(SCREEN_CENTER_Y + e2 * 30)
 
         ring:rotationx(-70 + math.sin(knownScreenUptime * 1 / -29) * 2 + e2 * 10)
         ring:rotationy( 40 + math.cos(knownScreenUptime * 1 / -31) * 2)
@@ -360,14 +372,14 @@ local function updater(self, delta)
             model:diffusealpha(1 + te2)
 
         elseif screen == "ScreenEvaluationStage" or screen == "ScreenEvaluationCourse" then
-            model:y(SCREEN_CENTER_Y - 30 + te * 25)
+            model:y(SCREEN_CENTER_Y + te * 25)
 
         elseif screen == "ScreenPlayerOptions" then
             model:x(SCREEN_CENTER_X + 250 + te * -20)
             model:diffuse(75 / 255, 75 / 255, 75 / 255, 1 - te2)
 
         else
-            model:y(SCREEN_CENTER_Y - 30 + e2 * 30 + te * 25)
+            model:y(SCREEN_CENTER_Y + e2 * 30 + te * 25)
             model:diffusealpha(DatumOptions.DATUM_OPACITY / 100 - te2 + e1 * -3.8)
         end
 
@@ -610,7 +622,7 @@ if DatumOptions.SINE_ENABLED == true then
 		t[#t+1] = Def.ActorFrame {
 			Name = "sPolygonFrame"..s,
 			OnCommand=function(self)
-				self:linear(-1)
+				self:linear(0)
 				local curScreen=GetCurrentScreen(true)
 				if curScreen == "ScreenSelectMusic" then
 					self
@@ -1083,11 +1095,21 @@ t[#t+1] = Def.Actor {
 						if statsActor then
 							-- FolderStats.lua and DensityGraph.lua both return actorframes without names.
 							-- DensityGraph.lua has a "ChartParser" element, so lets differentiate it that way.
-							local chartParser = statsActor:GetChild("ChartParser")
+							local densityBG = statsActor:GetChild("")
+							if densityBG then
+								densityBG:diffusealpha(0.3)
+							end
 							
+							local chartParser = statsActor:GetChild("ChartParser")
 							if chartParser then
-								statsActor:diffusealpha(0.5)
-								
+								--[[ TODO: Customizable density graph?
+									local densityGraph = chartParser:GetChild("DensityGraph")
+									if densityGraph then
+										--densityGraph:diffuse(0.5,0.5,0.5,1)
+										--densityGraph:diffusetopedge(0.5,0.5,0.5,1)
+										print(densityGraph:GetNumVertices() .. " DENSITYGRAPH Spotted")
+									end
+								]]
 								local patternInfo = chartParser:GetChild("PatternInfo")
 								if patternInfo then
 									local patternActor = patternInfo:GetChild("")
@@ -1099,8 +1121,7 @@ t[#t+1] = Def.Actor {
 						end
 					end
 				end
-				--[[
-				do
+					--[[
 					local children = overlay:GetChild("")
 					for i = 1,#children do
 						local child = children[i]
@@ -1111,8 +1132,7 @@ t[#t+1] = Def.Actor {
 							end
 						end
 					end
-				end
-				--]]
+					]]
 				--GetCurrentScreen():GetChild("Footer"):diffusealpha(0.5):diffuse(0, 0, 0, 0.5)
 				--GetCurrentScreen():GetChild("Header"):GetChild(""):diffuse(0, 0, 0, 0.5)
 			end
