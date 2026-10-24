@@ -610,7 +610,6 @@ if DatumOptions.SINE_ENABLED == true then
 		t[#t+1] = Def.ActorFrame {
 			Name = "sPolygonFrame"..s,
 			OnCommand=function(self)
-				self:linear(0)
 				local curScreen=GetCurrentScreen(true)
 				if curScreen == "ScreenSelectMusic" then
 					self
