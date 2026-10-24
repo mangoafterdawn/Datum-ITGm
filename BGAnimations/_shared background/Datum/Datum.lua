@@ -171,13 +171,14 @@ end
 --//////////////////////////////////////////////////
 
 local function shiftActiveColorHue()
-	-- "Hue", "Sat", "Value", "Alpha"
-	return HSVToColor({
-		Hue = (baseHSV.Hue - DatumOptions.DATUM_HUE_SHIFT_AMOUNT) % 360,
-		Sat = 1.0,
-		Value = baseHSV.Value,
-		Alpha = baseHSV.Alpha
-	})
+	local currentHSV = ColorToHSV(GetHexColor(SL.Global.ActiveColorIndex, true))
+	local newHSV = {
+		["Hue"] = currentHSV["Hue"] - DatumOptions.DATUM_HUE_SHIFT_AMOUNT,
+		["Sat"] = 1.0,
+		["Value"] = currentHSV["Value"],
+		["Alpha"] = currentHSV["Alpha"],
+	}
+	return HSVToColor(newHSV)
 end
 
 function clamp(val, lower, upper)
@@ -841,6 +842,7 @@ t[#t+1] = Def.Sprite {
 	end,
 	OnCommand=function(self)
 		self
+		:visible(DatumOptions.DATUM_MODEL_ENABLED)
 		:linear(0)
 		:diffuse(GetHexColor(SL.Global.ActiveColorIndex, true))
 		:diffusetopedge(shiftActiveColorHue())
