@@ -44,7 +44,7 @@ echo "If you would prefer to do this after installation is complete, it will be 
 echo
 echo "$FILE_PATH/BGAnimations/_shared background/Datum/DatumOptions.lua"
 echo
-echo "Install optional theme sound effects? This will replace sound effects across the ENTIRE THEME,"
+echo "Install optional theme sound effects? This will replace sound effects across ALL Visual Styles."
 echo "(Current sound effects will be backed up at $PWD/.backup/Sounds/)"
 read -r -p "[Y/n]: " REPLY_SOUNDS
 echo

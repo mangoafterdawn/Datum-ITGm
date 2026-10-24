@@ -187,7 +187,7 @@ Write-Host "If you would prefer to do this after installation is complete, it wi
 Write-Host ""
 Write-Host "$FILE_PATH\BGAnimations\_shared background\Datum\DatumOptions.lua"
 Write-Host ""
-Write-Host "Install optional theme sound effects? This will replace sound effects across the ENTIRE THEME,"
+Write-Host "Install optional theme sound effects? This will replace sound effects across ALL Visual Styles."
 Write-Host "(Current sound effects will be backed up at $PWD\.backup\Sounds\)"
 $DO_SOUNDS_INSTALLATION = Read-YesNo -Prompt '' -Default $true
 Write-Host ""
