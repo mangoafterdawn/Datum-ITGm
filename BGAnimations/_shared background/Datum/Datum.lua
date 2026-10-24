@@ -988,15 +988,23 @@ t[#t+1] = Def.Actor {
 			do
 				local header = GetCurrentScreen():GetChild("Header")
 				local footer = GetCurrentScreen():GetChild("Footer")
+				colorToDiffuse = {15/255,15/255,15/255,0.75}
 				if footer then
-					footer:diffuse(15/255,15/255,15/255,0.75)
+					footer:diffuse(colorToDiffuse)
 				end
-				if GetCurrentScreen():GetChild("Header") then
-					--sometimes, the header quad we are looking for is buried within another header actorframe.
-					if header:GetChild("Header") then
-						header:GetChild("Header"):GetChild(""):diffuse(15/255,15/255,15/255,0.75)
+				if header then
+					--sometimes, the header quad we are looking for is buried within another "Header" actorframe.
+					local headerAlt = header:GetChild("Header")
+					if headerAlt then
+						local headerAltQuad = headerAlt:GetChild("")
+						if headerAltQuad then
+							headerAltQuad:diffuse(colorToDiffuse)
+						end
 					end
-					header:GetChild(""):diffuse(15/255,15/255,15/255,0.75)
+					local headerQuad = header:GetChild("")
+					if headerQuad then
+						headerQuad:diffuse(colorToDiffuse)
+					end
 				end
 			end
 
