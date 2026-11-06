@@ -1,6 +1,6 @@
 -- @NAME:Datum Visual Style
--- @VERSION:1.0.1
--- @ID:dat.101
+-- @VERSION:1.0.5
+-- @ID:dat.105
 
 -- adapted from Technique.lua
 -- created by mang;
