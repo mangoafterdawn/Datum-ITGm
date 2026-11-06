@@ -352,7 +352,11 @@ local function updater(self, delta)
 		})
     end
 
-    --model:diffusealpha(0.7)
+	if not easesDone then
+		coverQuad:visible(1)
+		coverQuad:diffuse(0,0,0,e1*4)
+	end
+
     model:diffusealpha(DatumOptions.DATUM_OPACITY / 100 + e1 * -3.8)
 	if isOpaque then model:diffusealpha(1) end
 
@@ -405,9 +409,9 @@ local function updater(self, delta)
             model:y(SCREEN_CENTER_Y - 20 + te * 25)
 
             coverQuad
-                :diffuse(coverDiffuse / 255, coverDiffuse / 255, coverDiffuse / 255, 1)
-                :diffusebottomedge(coverDiffuseBottom / 255, coverDiffuseBottom / 255, coverDiffuseBottom / 255, 1)
-                :diffusealpha(0.7 + te * 0.2)
+            :diffuse(coverDiffuse / 255, coverDiffuse / 255, coverDiffuse / 255, 1)
+            :diffusebottomedge(coverDiffuseBottom / 255, coverDiffuseBottom / 255, coverDiffuseBottom / 255, 1)
+            :diffusealpha(0.7 + te * 0.2)
 
             model:diffusealpha(1 + te2)
 
