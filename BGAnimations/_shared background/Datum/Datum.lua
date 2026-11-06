@@ -170,34 +170,79 @@ end
 --                  STYLE CODE
 --//////////////////////////////////////////////////
 
-local function shiftActiveColorHue()
-	local hsv = ColorToHSV(GetHexColor(SL.Global.ActiveColorIndex, true))
-	hsv.Hue = (hsv.Hue - DatumOptions.DATUM_HUE_SHIFT_AMOUNT) % 360
-	hsv.Sat = 1.0
-	hsv.Value = clamp(hsv.Value + 0.5,0,1)
-	return HSVToColor(hsv)
-end
-
 local function clamp(val, lower, upper)
     return math.max(lower, math.min(upper, val))
 end
 
--- we use this to shift the base hue in the opposite direction a very slight amount,
--- so the "base" color is more visible in the middle of the model rather than at the bottom.
-local shiftBack = -DatumOptions.DATUM_HUE_SHIFT_AMOUNT * 0.1
--- this might have unintended consequences at higher hue shift amounts, so let's clamp it.
-shiftBack = clamp(shiftBack,-15,15)
+local function HSVShift(color,h,s,v,a)
+	if not (color and color.Hue and color.Sat and color.Value and color.Alpha) then 
+        return nil 
+    end
 
-local function customHSVShift(color,h,s,v,a)
-	--local hsv = ColorToHSV(GetHexColor(SL.Global.ActiveColorIndex, true))
-	if color.Hue and color.Sat and color.Value and color.Alpha then 
-		local hsv = color
-		hsv.Hue   =      (hsv.Hue + (h or 0)) % 360
-		hsv.Sat   = clamp(hsv.Sat + (s or 0), 0, 1)
-		hsv.Value = clamp(hsv.Value + (v or 0), 0, 1)
-		hsv.Alpha = clamp(hsv.Alpha + (a or 0), 0, 1)
-		return HSVToColor(hsv)
+    local hsv = {
+        Hue   =      (color.Hue + (h or 0)) % 360,
+        Sat   = clamp(color.Sat + (s or 0), 0, 1),
+        Value = clamp(color.Value + (v or 0), 0, 1),
+        Alpha = clamp(color.Alpha + (a or 0), 0, 1)
+    }
+
+    return HSVToColor(hsv)
+end
+
+-- more easily loop through diffuse methods.
+local diffuseMethods = {
+    "diffuse",
+    "diffusetopedge",
+    "diffusebottomedge"
+}
+local function diffuseGeneric(actor, diffuseType, r, g, b, a)
+    local whichDiffuse = diffuseMethods[diffuseType or 1]
+    
+    if whichDiffuse and actor[whichDiffuse] then
+        actor[whichDiffuse](actor, r, g, b, a)
+    end
+end
+
+local function datumHueGradient(actor,shiftDegrees)
+	-- fallback to empty table.
+	shiftDegrees = shiftDegrees or {}
+	-- shiftDegrees should be a table of values:
+		-- [1]: hue shift on base, diffuse()
+		-- [2]: hue shift on top edge, diffusetopedge()
+		-- [3]: hue shift on bottom edge, diffusebottomedge()
+
+	-- current SL color.
+	local activeColor = GetHexColor(SL.Global.ActiveColorIndex, true)
+	-- convert to HSV.
+	local activeHSV = ColorToHSV(activeColor)
+
+	-- perform hue shifting based on diffuse type.
+	-- also brighten up the default colors by boosting the Value.
+	for dType = 1,3 do
+		local shiftedColor = HSVShift(activeHSV, shiftDegrees[dType] or 0, 0, 0, 1)
+		diffuseGeneric(actor, dType, unpack(shiftedColor))
 	end
+end
+
+local function datumGradient(actor, shiftTables)
+	-- fallback to empty table.
+    shiftTables = shiftTables or {}
+	-- shiftTables should itself contain tables defining the shift amounts:
+		-- [1]: {Hue,Sat,Value,Alpha} on diffuse()
+		-- [2]: {Hue,Sat,Value,Alpha} on diffusetopedge()
+		-- [3]: {Hue,Sat,Value,Alpha} on diffusebottomedge()
+
+	-- current SL color.
+    local activeColor = GetHexColor(SL.Global.ActiveColorIndex, true)
+	-- convert to HSV.
+    local activeHSV = ColorToHSV(activeColor)
+
+	-- perform hue shifting based on diffuse type.
+	-- also brighten up the default colors by boosting the Value.
+    for dType = 1, 3 do
+        local shiftedColor = HSVShift(activeHSV, unpack(shiftTables[dType] or {}))
+        diffuseGeneric(actor, dType, unpack(shiftedColor))
+    end
 end
 
 local doGayMode
@@ -289,25 +334,13 @@ local function updater(self, delta)
     end
 
     -- hue cycling
-
     if doGayMode then
-        local h = (baseHSV.Hue + time * DatumOptions.GAY_MODE_SPEED) % 360
-        tmpHSV.Hue   = h
-        tmpHSV.Sat   = 1.0
-        tmpHSV.Value = baseHSV.Value
-        tmpHSV.Alpha = baseHSV.Alpha
-        local c = HSVToColor(tmpHSV)
-
-        if DatumOptions.DATUM_HUE_SHIFT_ENABLED then
-			local shiftAmount = DatumOptions.DATUM_HUE_SHIFT_AMOUNT
-			-- perform hue shifting
-            model:diffuse(HSVToColor(tmpHSV))
-            tmpHSV.Hue = (h - shiftAmount) % 360
-            model:diffusetopedge(HSVToColor(tmpHSV))
-        else
-            model:diffuse(c)
-            model:diffusetopedge(c)
-        end
+		local shiftAmount = DatumOptions.DATUM_HUE_SHIFT_ENABLED and DatumOptions.DATUM_HUE_SHIFT_AMOUNT
+		datumGradient(model,{
+			{time * DatumOptions.GAY_MODE_SPEED,1,1,0},
+			{time * DatumOptions.GAY_MODE_SPEED - (shiftAmount or 0),1,1,0},
+			{time * DatumOptions.GAY_MODE_SPEED + (shiftAmount or 0),1,1,0},
+		})
     end
 
     --model:diffusealpha(0.7)
@@ -851,19 +884,14 @@ t[#t+1] = Def.Sprite {
 		self
 		:linear(0)
 		:visible(DatumOptions.DATUM_MODEL_ENABLED)
-		-- current SL color.
-		local activeColor = ColorToHSV(GetHexColor(SL.Global.ActiveColorIndex, true))
-		-- when hue shifting is enabled, shiftAmount will be the set hue shift value from DatumOptions.
-		local doShift = DatumOptions.DATUM_HUE_SHIFT_ENABLED
-		local shiftAmount = doShift and -DatumOptions.DATUM_HUE_SHIFT_AMOUNT or 0
-		-- we use shiftBack to shift the base hue in the opposite direction a very slight amount,
-		-- so the "base" color is more visible near the center of the model rather than at the bottom.
-		local shiftBack = doShift and shiftBack or 0
-		-- brighten up the default colors by boosting the Saturation and Value
-		-- and perform hue shifting if enabled.
+
+		datumHueGradient(self,{
+			0,
+			DatumOptions.DATUM_HUE_SHIFT_ENABLED and -DatumOptions.DATUM_HUE_SHIFT_AMOUNT,
+			DatumOptions.DATUM_HUE_SHIFT_ENABLED and  DatumOptions.DATUM_HUE_SHIFT_AMOUNT * 0.2,
+		})
+
 		self
-		:diffuse(customHSVShift(activeColor,shiftBack,0.5,0.5))
-		:diffusetopedge(customHSVShift(activeColor,shiftAmount,0.5,0.5))
 		:diffusealpha(DatumOptions.DATUM_OPACITY/100)
 		:zoomto(300,280)
 		--:zoomx(2.7):zoomy(3.125):zoomz(2.5)
@@ -931,20 +959,12 @@ t[#t+1] = Def.Sprite {
 		end
 	end,
 	ColorSelectedMessageCommand=function(self)
-		-- current SL color.
-		local activeColor = ColorToHSV(GetHexColor(SL.Global.ActiveColorIndex, true))
-		-- when hue shifting is enabled, shiftAmount will be the set hue shift value from DatumOptions.
-		local doShift = DatumOptions.DATUM_HUE_SHIFT_ENABLED
-		local shiftAmount = doShift and -DatumOptions.DATUM_HUE_SHIFT_AMOUNT or 0
-		-- we use shiftBack to shift the base hue in the opposite direction a very slight amount,
-		-- so the "base" color is more visible near the center of the model rather than at the bottom.
-		local shiftBack = doShift and shiftBack or 0
-		-- brighten up the default colors by boosting the Saturation and Value
-		-- and perform hue shifting if enabled.
-		self
-		:linear(0.1)
-		:diffuse(customHSVShift(activeColor,shiftBack,0.5,0.5))
-		:diffusetopedge(customHSVShift(activeColor,shiftAmount,0.5,0.5))
+		self:linear(0.1)
+		datumHueGradient(self,{
+			0,
+			DatumOptions.DATUM_HUE_SHIFT_ENABLED and -DatumOptions.DATUM_HUE_SHIFT_AMOUNT,
+			DatumOptions.DATUM_HUE_SHIFT_ENABLED and  DatumOptions.DATUM_HUE_SHIFT_AMOUNT * 0.2,
+		})
 		self:diffusealpha(DatumOptions.DATUM_OPACITY/100)
 	end,
 }
@@ -1033,7 +1053,7 @@ t[#t+1] = Def.Actor {
 			end
 
 			if GetCurrentScreen(true)=="ScreenTitleMenu" then
-				--remove the SL text logos ass they will be replaced with BG elements.
+				-- remove the SL logos as they will be replaced with BG elements.
 				local underlay = GetCurrentScreen():GetChild("Underlay")
 				if underlay then
 					local SLInfo = underlay:GetChild("SLInfo")
