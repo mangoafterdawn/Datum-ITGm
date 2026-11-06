@@ -18,6 +18,7 @@
 local knownScreens = {
 	"ScreenTitleMenu",
 	"ScreenSelectMusic",
+	"ScreenSelectCourse",
 	"ScreenEvaluationStage",
 	"ScreenEvaluationCourse",
 	"ScreenPlayerOptions",
@@ -693,7 +694,7 @@ if DatumOptions.SINE_ENABLED == true then
 					local radius = 80 + s*20-- sine twist radius, vary by s
 					-- offset in radius to give the quadstrip some width
 					local lineWidth
-					if curScreenName == "ScreenSelectMusic" or curScreenName == "ScreenPlayerOptions" then
+					if curScreenName == "ScreenSelectMusic" or curScreenName == "ScreenSelectCourse" or curScreenName == "ScreenPlayerOptions" then
 						lineWidth = DatumOptions.SINE_WIDTH * 4.25
 					else
 						lineWidth = DatumOptions.SINE_WIDTH
@@ -917,7 +918,7 @@ t[#t+1] = Def.Sprite {
 		end
 	end,
 	ScreenChangedMessageCommand=function(self)
-		local curScreen = GetCurrentScreen(true)
+		local curScreenName = GetCurrentScreen(true)
 		if curScreenName == "ScreenSelectMusic" or curScreenName == "ScreenSelectCourse" then
 			self:finishtweening()
 			self:zoomto(750,700)
@@ -934,7 +935,7 @@ t[#t+1] = Def.Sprite {
 				:x(SCREEN_CENTER_X + 200)
 				:y(SCREEN_CENTER_Y - 30)
 			end
-		elseif curScreen == "ScreenPlayerOptions" then
+		elseif curScreenName == "ScreenPlayerOptions" then
 			self
 			:finishtweening()
 			:zoomto(675,630)
@@ -953,7 +954,7 @@ t[#t+1] = Def.Sprite {
 				:x(SCREEN_CENTER_X + 300)
 				:y(SCREEN_CENTER_Y - 30)
 			end
-		elseif curScreen == "ScreenTitleMenu" then
+		elseif curScreenName == "ScreenTitleMenu" then
 			if not DatumOptions.UPDATE_LOOP_ENABLED then
 				self
 				:finishtweening()
