@@ -223,7 +223,7 @@ local function datumHueGradient(actor,shiftDegrees)
 	-- perform hue shifting based on diffuse type.
 	-- also brighten up the default colors by boosting the Value.
 	for dType = 1,3 do
-		local shiftedColor = HSVShift(activeHSV, shiftDegrees[dType] or 0, 0, 0, 1)
+		local shiftedColor = HSVShift(activeHSV, shiftDegrees[dType] or 0, 0.6, 0.6, 0)
 		diffuseGeneric(actor, dType, unpack(shiftedColor))
 	end
 end
