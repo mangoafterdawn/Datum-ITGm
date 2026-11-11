@@ -352,7 +352,7 @@ local function updater(self, delta)
 		})
     end
 
-	if not easesDone then
+	if (not easesDone) and screen == "ScreenTitleMenu" then
 		coverQuad:visible(1)
 		coverQuad:diffuse(0,0,0,e1*4)
 	end
